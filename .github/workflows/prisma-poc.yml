@@ -1,36 +1,35 @@
-name: Prisma-POC
+name: Prisma-Image-Scan
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
-  build:
+  scan:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout
       uses: actions/checkout@v4
 
     - name: Build Docker image
       run: |
         docker build -t poc-app:${{ github.sha }} .
 
-    - name: Prisma Cloud Scan
-      run: |
-        docker run --rm \
-          -v /var/run/docker.sock:/var/run/docker.sock \
-          registry.twistlock.com/twistlock/defender:latest \
-          image scan \
-          --address ${{ secrets.PRISMA_URL }} \
-          --user ${{ secrets.PRISMA_USER }} \
-          --password ${{ secrets.PRISMA_PASS }} \
-          poc-app:${{ github.sha }}
+    - name: Prisma Cloud Image Scan (AppSec)
+      uses: prisma-cloud/code-security-scan-action@v1
+      with:
+        pccs_url: https://api.ind.prismacloud.io
+        pccs_access_key: ${{ secrets.PRISMA_USER }}
+        pccs_secret_key: ${{ secrets.PRISMA_PASS }}
+        scan_type: image
+        image_name: poc-app:${{ github.sha }}
+        fail_on_issues: true
 
     - name: Login to ACR
       run: |
         echo "${{ secrets.ACR_PASS }}" | docker login ${{ secrets.ACR_NAME }}.azurecr.io \
-        -u ${{ secrets.ACR_USER }} --password-stdin
+          -u ${{ secrets.ACR_USER }} --password-stdin
 
     - name: Push image to ACR
       run: |
