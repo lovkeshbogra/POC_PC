@@ -1,0 +1,38 @@
+name: Prisma-POC
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Build Docker image
+      run: |
+        docker build -t poc-app:${{ github.sha }} .
+
+    - name: Prisma Cloud Scan
+      run: |
+        docker run --rm \
+          -v /var/run/docker.sock:/var/run/docker.sock \
+          twistlock/defender:latest \
+          image scan \
+          --address ${{ secrets.PRISMA_URL }} \
+          --user ${{ secrets.PRISMA_USER }} \
+          --password ${{ secrets.PRISMA_PASS }} \
+          poc-app:${{ github.sha }}
+
+    - name: Login to ACR
+      run: |
+        echo "${{ secrets.ACR_PASS }}" | docker login ${{ secrets.ACR_NAME }}.azurecr.io \
+        -u ${{ secrets.ACR_USER }} --password-stdin
+
+    - name: Push image to ACR
+      run: |
+        docker tag poc-app:${{ github.sha }} ${{ secrets.ACR_NAME }}.azurecr.io/poc-app:${{ github.sha }}
+        docker push ${{ secrets.ACR_NAME }}.azurecr.io/poc-app:${{ github.sha }}
