@@ -18,14 +18,14 @@ jobs:
 
     - name: Login to Prisma Registry
       run: |
-          echo "${{ secrets.PRISMA_PASS }}" | docker login registry.ind.twistlock.com \
+          echo "${{ secrets.PRISMA_PASS }}" | docker login registry.twistlock.com \
               -u ${{ secrets.PRISMA_USER }} --password-stdin
 
     - name: Prisma Cloud Scan
       run: |
         docker run --rm \
           -v /var/run/docker.sock:/var/run/docker.sock \
-          registry.ind.twistlock.com/twistlock/defender:latest \
+          registry.twistlock.com/twistlock/defender:latest \
           image scan \
           --address ${{ secrets.PRISMA_URL }} \
           --user ${{ secrets.PRISMA_USER }} \
