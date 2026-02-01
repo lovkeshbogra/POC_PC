@@ -16,11 +16,6 @@ jobs:
       run: |
         docker build -t poc-app:${{ github.sha }} .
 
-    - name: Login to Prisma Registry
-      run: |
-          echo "${{ secrets.PRISMA_PASS }}" | docker login registry.twistlock.com \
-              -u ${{ secrets.PRISMA_USER }} --password-stdin
-
     - name: Prisma Cloud Scan
       run: |
         docker run --rm \
