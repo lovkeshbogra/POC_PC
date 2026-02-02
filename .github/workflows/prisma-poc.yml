@@ -16,12 +16,18 @@ jobs:
       run: |
         docker build -t poc-app:${{ github.sha }} .
 
-    - name: Download twistcli
-      run: |
-        curl -k -u ${{ secrets.PRISMA_USER }}:${{ secrets.PRISMA_PASS }} \
+        - name: Download twistcli
+         run: |
+        curl -k -L \
+        -u "${{ secrets.PRISMA_USER }}:${{ secrets.PRISMA_PASS }}" \
         https://app.ind.prismacloud.io/api/v1/util/twistcli \
         -o twistcli
+
+        ls -lh twistcli
+        head -n 2 twistcli
+
         chmod +x twistcli
+
 
     - name: Prisma Cloud Scan
       run: |
