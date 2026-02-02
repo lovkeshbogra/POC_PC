@@ -18,9 +18,10 @@ jobs:
 
     - name: Download twistcli
       run: |
-        curl -k -u ${{ secrets.PRISMA_USER }}:${{ secrets.PRISMA_PASS }} \
-        ${{ secrets.PRISMA_URL }}/api/v1/util/twistcli -o twistcli
-        chmod +x twistcli
+       curl -k -u ${{ secrets.PRISMA_USER }}:${{ secrets.PRISMA_PASS }} \
+       https://app.ind.prismacloud.io/api/v1/util/twistcli \
+       -o twistcli
+       chmod +x twistcli
 
     - name: Prisma Cloud Scan
       run: |
