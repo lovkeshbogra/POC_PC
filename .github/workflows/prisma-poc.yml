@@ -23,16 +23,17 @@ jobs:
        -o twistcli
        chmod +x twistcli
 
-    - name: Prisma Cloud Scan
-      run: |
-        ./twistcli images scan \
-        --address ${{ secrets.PRISMA_URL }} \
-        --user ${{ secrets.PRISMA_USER }} \
-        --password ${{ secrets.PRISMA_PASS }} \
-        --details \
-        --ci \
-        --job-name github-${{ github.run_id }} \
-        poc-app:${{ github.sha }}
+        - name: Prisma Cloud Scan
+          run: |
+         ./twistcli images scan \
+         --address https://app.ind.prismacloud.io \
+         --user ${{ secrets.PRISMA_USER }} \
+         --password ${{ secrets.PRISMA_PASS }} \
+         --details \
+         --ci \
+         --job-name github-${{ github.run_id }} \
+          poc-app:${{ github.sha }}
+
 
     - name: Login to ACR
       run: |
