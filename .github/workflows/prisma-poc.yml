@@ -29,6 +29,8 @@ jobs:
         --user ${{ secrets.PRISMA_USER }} \
         --password ${{ secrets.PRISMA_PASS }} \
         --details \
+        --ci \
+        --job-name github-${{ github.run_id }} \
         poc-app:${{ github.sha }}
 
     - name: Login to ACR
