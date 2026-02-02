@@ -16,21 +16,20 @@ jobs:
       run: |
         docker build -t poc-app:${{ github.sha }} .
 
-    - name: Login to Prisma Registry
+    - name: Download twistcli
       run: |
-          echo "${{ secrets.PRISMA_PASS }}" | docker login registry.twistlock.com \
-              -u ${{ secrets.PRISMA_USER }} --password-stdin
+        curl -k -u ${{ secrets.PRISMA_USER }}:${{ secrets.PRISMA_PASS }} \
+        ${{ secrets.PRISMA_URL }}/api/v1/util/twistcli -o twistcli
+        chmod +x twistcli
 
     - name: Prisma Cloud Scan
       run: |
-        docker run --rm \
-          -v /var/run/docker.sock:/var/run/docker.sock \
-          registry.twistlock.com/twistlock/defender:latest \
-          image scan \
-          --address ${{ secrets.PRISMA_URL }} \
-          --user ${{ secrets.PRISMA_USER }} \
-          --password ${{ secrets.PRISMA_PASS }} \
-          poc-app:${{ github.sha }}
+        ./twistcli images scan \
+        --address ${{ secrets.PRISMA_URL }} \
+        --user ${{ secrets.PRISMA_USER }} \
+        --password ${{ secrets.PRISMA_PASS }} \
+        --details \
+        poc-app:${{ github.sha }}
 
     - name: Login to ACR
       run: |
