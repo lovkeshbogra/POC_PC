@@ -18,4 +18,28 @@ jobs:
 
     - name: Download twistcli
       run: |
-        curl -k -u ${{ secrets.PRISMA
+        curl -k -u ${{ secrets.PRISMA_USER }}:${{ secrets.PRISMA_PASS }} \
+        https://app.ind.prismacloud.io/api/v1/util/twistcli \
+        -o twistcli
+        chmod +x twistcli
+
+    - name: Prisma Cloud Scan
+      run: |
+        ./twistcli images scan \
+        --address https://app.ind.prismacloud.io \
+        --user ${{ secrets.PRISMA_USER }} \
+        --password ${{ secrets.PRISMA_PASS }} \
+        --details \
+        --ci \
+        --job-name github-${{ github.run_id }} \
+        poc-app:${{ github.sha }}
+
+    - name: Login to ACR
+      run: |
+        echo "${{ secrets.ACR_PASS }}" | docker login ${{ secrets.ACR_NAME }}.azurecr.io \
+        -u ${{ secrets.ACR_USER }} --password-stdin
+
+    - name: Push image to ACR
+      run: |
+        docker tag poc-app:${{ github.sha }} ${{ secrets.ACR_NAME }}.azurecr.io/poc-app:${{ github.sha }}
+        docker push ${{ secrets.ACR_NAME }}.azurecr.io/poc-app:${{ github.sha }}
