@@ -16,29 +16,41 @@ jobs:
       run: |
         docker build -t poc-app:${{ github.sha }} .
 
-        - name: Scan Docker Image
-              run: |
-              echo ${{ secrets.PRISMA_USER }}:${{ secrets.PRISMA_PASS }}
-              wget --header "Authorization: Basic $(echo -n ${{ secrets.PRISMA_USER }}:${{ secrets.PRISMA_PASS }} | base64 | tr -d '\n')" "https://asia-south1.cloud.twistlock.com/india-1131962848/api/v1/util/twistcli"
-              chmod a+x ./twistcli
+    - name: Download twistcli
+      env:
+        PRISMA_USER: ${{ secrets.PRISMA_USER }}
+        PRISMA_PASS: ${{ secrets.PRISMA_PASS }}
+      run: |
+        curl -k -L \
+          -u "$PRISMA_USER:$PRISMA_PASS" \
+          https://asia-south1.cloud.twistlock.com/india-1131962848/api/v1/util/twistcli \
+          -o twistcli
 
-    - name: Prisma Cloud Scan
+        chmod +x twistcli
+        ./twistcli --version
+
+    - name: Prisma Cloud Image Scan
+      env:
+        PRISMA_USER: ${{ secrets.PRISMA_USER }}
+        PRISMA_PASS: ${{ secrets.PRISMA_PASS }}
       run: |
         ./twistcli images scan \
-        --address https://asia-south1.cloud.twistlock.com/india-1131962848 \
-        --user ${{ secrets.PRISMA_USER }} \
-        --password ${{ secrets.PRISMA_PASS }} \
-        --details \
-        --ci \
-        --job-name github-${{ github.run_id }} \
-        poc-app:${{ github.sha }}
+          --address https://asia-south1.cloud.twistlock.com/india-1131962848 \
+          --user "$PRISMA_USER" \
+          --password "$PRISMA_PASS" \
+          --details \
+          --ci \
+          --job-name github-${{ github.run_id }} \
+          poc-app:${{ github.sha }}
 
     - name: Login to ACR
       run: |
         echo "${{ secrets.ACR_PASS }}" | docker login ${{ secrets.ACR_NAME }}.azurecr.io \
-        -u ${{ secrets.ACR_USER }} --password-stdin
+          -u ${{ secrets.ACR_USER }} --password-stdin
 
     - name: Push image to ACR
       run: |
-        docker tag poc-app:${{ github.sha }} ${{ secrets.ACR_NAME }}.azurecr.io/poc-app:${{ github.sha }}
+        docker tag poc-app:${{ github.sha }} \
+          ${{ secrets.ACR_NAME }}.azurecr.io/poc-app:${{ github.sha }}
+
         docker push ${{ secrets.ACR_NAME }}.azurecr.io/poc-app:${{ github.sha }}
