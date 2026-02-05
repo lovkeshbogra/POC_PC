@@ -16,22 +16,16 @@ jobs:
       run: |
         docker build -t poc-app:${{ github.sha }} .
 
-    - name: Download twistcli
-      run: |
-        curl -k -L \
-        -u "${{ secrets.PRISMA_USER }}:${{ secrets.PRISMA_PASS }}" \
-        https://app.ind.prismacloud.io/api/v1/util/twistcli \
-        -o twistcli
-
-        ls -lh twistcli
-        head -n 2 twistcli
-
-        chmod +x twistcli
+        - name: Scan Docker Image
+              run: |
+              echo ${{ secrets.PRISMA_USER }}:${{ secrets.PRISMA_PASS }}
+              wget --header "Authorization: Basic $(echo -n ${{ secrets.PRISMA_USER }}:${{ secrets.PRISMA_PASS }} | base64 | tr -d '\n')" "https://asia-south1.cloud.twistlock.com/india-1131962848/api/v1/util/twistcli"
+              chmod a+x ./twistcli
 
     - name: Prisma Cloud Scan
       run: |
         ./twistcli images scan \
-        --address https://app.ind.prismacloud.io \
+        --address https://asia-south1.cloud.twistlock.com/india-1131962848 \
         --user ${{ secrets.PRISMA_USER }} \
         --password ${{ secrets.PRISMA_PASS }} \
         --details \
