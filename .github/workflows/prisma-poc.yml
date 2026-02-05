@@ -29,19 +29,8 @@ jobs:
         chmod +x twistcli
         ./twistcli --version
 
-    - name: Prisma Cloud Image Scan
-      env:
-        PRISMA_USER: ${{ secrets.PRISMA_USER }}
-        PRISMA_PASS: ${{ secrets.PRISMA_PASS }}
-      run: |
-        ./twistcli images scan \
-          --address https://asia-south1.cloud.twistlock.com/india-1131962848 \
-          --user "$PRISMA_USER" \
-          --password "$PRISMA_PASS" \
-          --details \
-          --ci \
-          --job-name github-${{ github.run_id }} \
-          poc-app:${{ github.sha }}
+         ./twistcli images scan --address https://asia-south1.cloud.twistlock.com/india-1131962848 --user ${{ secrets.PRISMA_USER }} --password ${{ secrets.PRISMA_PASS }} --details poc-app:${{ github.sha }}
+ 
 
     - name: Login to ACR
       run: |
