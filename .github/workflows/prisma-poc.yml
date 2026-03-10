@@ -23,13 +23,13 @@ jobs:
       run: |
         curl -k -L \
           -u "$PRISMA_USER:$PRISMA_PASS" \
-          https://europe-west3.cloud.twistlock.com/eu-1614005/api/v1/util/twistcli \
+          https://asia-south1.cloud.twistlock.com/india-1131962848/api/v1/util/twistcli \
           -o twistcli
 
         chmod +x twistcli
         ./twistcli --version
 
-         ./twistcli images scan --address https://europe-west3.cloud.twistlock.com/eu-1614005 --user ${{ secrets.PRISMA_USER }} --password ${{ secrets.PRISMA_PASS }} --details poc-app:${{ github.sha }}
+         ./twistcli images scan --address https://asia-south1.cloud.twistlock.com/india-1131962848 --user ${{ secrets.PRISMA_USER }} --password ${{ secrets.PRISMA_PASS }} --details poc-app:${{ github.sha }}
  
 
     - name: Login to ACR
